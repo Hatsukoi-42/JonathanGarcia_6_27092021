@@ -56,6 +56,14 @@ exports.getAllSauces = (req, res, next) => {
 
 /* Update - Met à jour une sauce, deux façon, selon si une image est modifié ou non */
 exports.modifySauce = (req, res, next) => {
+
+	const userId = req.body.userId;
+	const jwtUserId = parseJwt(req.headers.authorization.split(" ")[1]).userId;
+	if (userId == jwtUserId) {
+		res.status(403).json({ message: `unauthorized request` })
+		return null;
+	}
+
 	/* Si un image est modifiée, supprime l'image précédente trouvé via la fonction "findOne" (ID) et supprime l'image*/
 	if (req.file) {
 		Sauce.findOne({ _id: req.params.id })
@@ -65,6 +73,7 @@ exports.modifySauce = (req, res, next) => {
 			// }
 		});
 	}
+	
 	/* Ternaire, si l'image est modifié, objet avec ajout de l'image et récupération des données, sinon objet avec récupération simple des données */
 	const sauceObject = req.file ?
 	{
@@ -132,7 +141,7 @@ exports.likeDislikeSauce = (req, res, next) => {
 							$pull: { usersLiked: userId }, 
 						}
 					)
-					.then(() => { res.status(201).json({ message: `like supprimé` }); })
+					.then(() => { res.status(200).json({ message: `like supprimé` }); })
 					.catch((error) => res.status(500).json({ error }));
 				}
 				// Si l'user avait dislike, alors on le retire
@@ -146,7 +155,7 @@ exports.likeDislikeSauce = (req, res, next) => {
 							$pull: { usersDisliked: userId },
 						}
 					)
-					.then(() =>res.status(201).json({ message: `dislike supprimé` }))
+					.then(() =>res.status(200).json({ message: `dislike supprimé` }))
 					.catch((error) => res.status(500).json({ error }));
 				}
 			})
@@ -164,7 +173,7 @@ exports.likeDislikeSauce = (req, res, next) => {
 					$push: { usersLiked: userId }, 
 				}
 			)
-			.then(() =>res.status(201).json({ message: `J'aime!` }))
+			.then(() =>res.status(200).json({ message: `J'aime!` }))
 			.catch((error) => res.status(500).json({ error }));
 			break;
 			
@@ -179,7 +188,7 @@ exports.likeDislikeSauce = (req, res, next) => {
 					$push: { usersDisliked: userId }, 
 				}
 			)
-			.then(() =>res.status(201).json({ message: `Je n'aime pas!` }))
+			.then(() =>res.status(200).json({ message: `Je n'aime pas!` }))
 			.catch((error) => res.status(500).json({ error }));
 			break;
 			
