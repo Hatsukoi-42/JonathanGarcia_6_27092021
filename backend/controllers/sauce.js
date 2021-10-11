@@ -59,7 +59,7 @@ exports.modifySauce = (req, res, next) => {
 
 	const userId = req.body.userId;
 	const jwtUserId = parseJwt(req.headers.authorization.split(" ")[1]).userId;
-	if (userId == jwtUserId) {
+	if (userId !== jwtUserId) {
 		res.status(403).json({ message: `unauthorized request` })
 		return null;
 	}
@@ -73,7 +73,7 @@ exports.modifySauce = (req, res, next) => {
 			// }
 		});
 	}
-	
+
 	/* Ternaire, si l'image est modifié, objet avec ajout de l'image et récupération des données, sinon objet avec récupération simple des données */
 	const sauceObject = req.file ?
 	{
